@@ -5,6 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const pg = require('pg');
 const superagent = require('superagent');
+const bodyparser = require('body-parser');
 
 // Application Setup
 const app = express();
@@ -22,6 +23,8 @@ client.on('error', err => console.error(err));
 
 // Application Middleware
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 // API Endpoints
 app.get('/api/v1/admin', (req, res) => res.send(TOKEN === parseInt(req.query.token)))
@@ -95,7 +98,7 @@ app.get('/api/v1/books/:id', (req, res) => {
     .catch(console.error);
 });
 
-app.post('/api/v1/books', express.urlencoded(), (req, res) => {
+app.post('/api/v1/books', (req, res) => {
   let {title, author, isbn, image_url, description} = req.body;
   client.query(`
     INSERT INTO books(title, author, isbn, image_url, description) VALUES($1, $2, $3, $4, $5)`,
@@ -105,7 +108,7 @@ app.post('/api/v1/books', express.urlencoded(), (req, res) => {
   .catch(console.error);
 });
 
-app.put('/api/v1/books/:id', express.urlencoded(), (req, res) => {
+app.put('/api/v1/books/:id', (req, res) => {
   let {title, author, isbn, image_url, description} = req.body;
   client.query(`
     UPDATE books
